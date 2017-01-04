@@ -3,40 +3,96 @@ require('isomorphic-fetch') // injects globals: fetch, Headers, Request, Respons
 
 var assert = require('assert')
 var defaults = require('101/defaults')
+var crypto = require('crypto')
+var createPad = require('./lib/pad')
 
 /**
  * create a graphql-fetch bound to a specific graphql url
  * @param  {String} graphqlUrl
+ * @param  {String} keyId ID that allows the server to identify the source
+ * @param  {String} privateKey Private Key used to encrypt the request
+ * @param  {String} cipherAlgorithm Cipher algorithm used for the transport,
+ *                                  Default algorithm is aes256.
+ * @param  {int}    cipherPad pad input data to the next bigger multiple length
+ *                            of the given integer. To counteract traffic
+ *                            analysis.
+ *                            By default it pads to 1024.
+ *                            This needs to be a multiple of the chosen
+ *                            cipherAlgorithms base encryption.
  * @return {Function} graphqlFetch
  */
-module.exports = function factory (graphqlUrl) {
+module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorithm, cipherPad) {
+  if (!graphqlUrl) {
+    var err = new Error('graphqlUrl missing')
+    err.code = 'EURLMISSING'
+    throw err
+  }
+  if (!cipherAlgorithm) {
+    cipherAlgorithm = 'aes256'
+  }
+  var pad = createPad(cipherPad || 1024)
+  var cipher = function (data) {
+    data = pad(data)
+    var c = crypto.createCipher(cipherAlgorithm, privateKey)
+    return Buffer.concat([
+      c.update(data),
+      c.final()
+    ]).toString('base64')
+  }
+  var decipher = function (data) {
+    var c = crypto.createDecipher(cipherAlgorithm, privateKey)
+    return Buffer.concat([
+      c.update(data, 'base64'),
+      c.final()
+    ]).toString('utf8')
+  }
+
   /**
    * graphql fetch - fetch w/ smart defaults for graphql requests
    * @param  {Query} query graphql query
-   * @param  {Object} vars  graphql query args
+   * @param  {Object} variables  graphql query variables
    * @param  {Object} opts  fetch options
    * @return {FetchPromise} fetch promise
    */
-  return function graphqlFetch (query, vars, opts) {
-    assert(query, 'query is required')
-    vars = vars || {}
+  return function graphqlFetch (query, variables, opts) {
+    if (!query) {
+      var err = new Error('query is required')
+      err.code = 'EQUERYMISSING'
+      return Promise.reject(err)
+    }
     opts = opts || {}
-    opts.body = JSON.stringify({
-      query: query,
-      variables: vars
-    })
-    // default opts
+
     defaults(opts, {
       method: 'POST',
       headers: new Headers()
     })
-    // default headers
+
     var headers = opts.headers
+
+    // Override the cipher & keyID & content-transfer-encoding,
+    // to make sure that the correct cipher is set
+    headers.set('x-cipher', cipherAlgorithm)
+    headers.set('x-key-id', keyID)
+    headers.set('content-transfer-encoding', 'base64')
+
+    // Do allow a different content-type
     if (!headers.get('content-type')) {
-      opts.headers.append('content-type', 'application/json')
+      headers.append('content-type', 'application/json')
     }
-    return fetch(graphqlUrl, opts).then(function (res) {
-      return res.json()
-    })
+
+    opts.body = cipher(JSON.stringify({
+      payload: {
+        query: query,
+        variables: variables || {}
+      }
+    }))
+
+    return fetch(graphqlUrl, opts)
+      .then(function (res) {
+        return decipher(res.text())
+      })
+      .then(function (data) {
+        return JSON.parse(data).payload
+      })
   }
 }

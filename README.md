@@ -1,14 +1,14 @@
 # graphql-fetch [![Build Status](https://travis-ci.org/tjmehta/graphql-fetch.svg?branch=master)](https://travis-ci.org/tjmehta/graphql-fetch) [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
-Thin GraphQL client powered by fetch.
+Thin encrypted - GraphQL client powered by fetch.
 
 # Installation
 ```bash
-npm i --save graphql-fetch
+npm i --save egraphql-fetch
 ```
 
 # Usage
 ```js
-var fetch = require('graphql-fetch')('http://domain.com/graphql')
+var fetch = require('graphql-fetch')('http://domain.com/graphql', 'keyId','secretKey')
 
 var query = `
   query q (id: String!) {
