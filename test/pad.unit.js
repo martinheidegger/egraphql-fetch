@@ -1,12 +1,11 @@
-var afterEach = global.afterEach
-var before = global.before
-var beforeEach = global.beforeEach
+'use strict'
+
 var describe = global.describe
 var it = global.it
 var expect = require('code').expect
 var createPad = require('../lib/pad.js')
 
-function createTest(str, padAmount, pad) {
+function createTest (str, padAmount, pad) {
   var expected = str.length + (padAmount - str.length % padAmount)
   it('string with length ' + str.length + ' should be padded to ' + expected, function () {
     expect(pad(str).length).to.equal(expected)

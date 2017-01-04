@@ -1,7 +1,8 @@
 'use strict'
-require('isomorphic-fetch') // injects globals: fetch, Headers, Request, Response
 
-var assert = require('assert')
+/* global Headers, fetch */
+require('isomorphic-fetch')
+
 var defaults = require('101/defaults')
 var crypto = require('crypto')
 var createPad = require('./lib/pad')

@@ -1,6 +1,10 @@
+'use strict'
+
+/* global Headers */
+require('isomorphic-fetch')
+
 var afterEach = global.afterEach
 var before = global.before
-var beforeEach = global.beforeEach
 var describe = global.describe
 var it = global.it
 
@@ -54,7 +58,7 @@ describe('graphql-fetch', function () {
           expect(opts.headers.get('content-transfer-encoding')).to.equal('base64')
           expect(opts.headers.get('content-type')).to.equal(opts.headers && opts.headers.get('content-type') || 'application/json')
           if (request.checkOpts) {
-            return request.checkOpts(opts) === false ? false : true
+            return request.checkOpts(opts)
           }
           return true
         }))
