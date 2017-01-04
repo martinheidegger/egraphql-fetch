@@ -3,12 +3,10 @@
 /* global Headers */
 require('isomorphic-fetch')
 
-var afterEach = global.afterEach
-var before = global.before
-var describe = global.describe
-var it = global.it
+var tap = require('tap')
+var test = tap.test
+var afterEach = tap.afterEach
 
-var expect = require('code').expect
 var sinon = require('sinon')
 var crypto = require('crypto')
 require('sinon-as-promised')
@@ -29,120 +27,119 @@ function _encrypt (cipher, key, pad, data) {
   ]).toString('base64')
 }
 
-describe('graphql-fetch', function () {
-  function testRequest (request, response) {
-    var encrypt = _encrypt.bind(null, request.cipherAlgorithm || 'aes256', request.privateKey, request.cipherPad || 1024)
-    var res = {
-      text: sinon.stub().returns(encrypt({
-        payload: response.payload
-      }))
-    }
-    sinon.stub(global, 'fetch').resolves(res)
-    var graphqlFetch = graphqlFactory(request.url, request.keyID, request.privateKey, request.cipherAlgorithm, request.cipherPad)
-    return graphqlFetch(request.query, request.variables, request.opts)
-      .then(function (result) {
-        expect(result).to.deep.equal(response.payload)
-        sinon.assert.calledOnce(global.fetch)
-        sinon.assert.calledOnce(res.text)
-        sinon.assert.calledWith(global.fetch, request.url, sinon.match(function (opts) {
-          expect(opts.body).to.equal(encrypt({
-            payload: {
-              query: request.query,
-              variables: request.variables || {}
-            }
-          }))
-          expect(opts.method).to.equal('POST')
-          expect(opts.headers).to.be.an.instanceOf(Headers)
-          expect(opts.headers.get('x-cipher')).to.equal(request.cipherAlgorithm || 'aes256')
-          expect(opts.headers.get('x-key-id')).to.equal(request.keyID)
-          expect(opts.headers.get('content-transfer-encoding')).to.equal('base64')
-          expect(opts.headers.get('content-type')).to.equal(opts.headers && opts.headers.get('content-type') || 'application/json')
-          if (request.checkOpts) {
-            return request.checkOpts(opts)
-          }
-          return true
-        }))
-        return result
-      })
-      .then(function (result) {
-        return {
-          result: result,
-          encrypt: encrypt
-        }
-      })
+afterEach(function (done) {
+  global.fetch.restore && global.fetch.restore()
+  done()
+})
+
+function testRequest (t, request, response) {
+  var encrypt = _encrypt.bind(null, request.cipherAlgorithm || 'aes256', request.privateKey, request.cipherPad || 1024)
+  var res = {
+    text: sinon.stub().returns(encrypt({
+      payload: response.payload
+    }))
   }
-
-  before(function () {
-    expect(global.fetch).to.exist()
-    expect(global.Headers).to.exist()
-    expect(global.Response).to.exist()
-    expect(global.Request).to.exist()
-  })
-
-  it('should make a graphql request', function () {
-    return testRequest({
-      url: graphqlUrl,
-      keyID: 'admin',
-      privateKey: 'password',
-      query: 'query { user { username } }'
-    }, {
-      payload: {
-        data: 'something'
+  sinon.stub(global, 'fetch').resolves(res)
+  try {
+    var graphqlFetch = graphqlFactory(request.url, request.keyID, request.privateKey, request.cipherAlgorithm, request.cipherPad)
+  } catch (e) {
+    return Promise.reject(e)
+  }
+  return graphqlFetch(request.query, request.variables, request.opts)
+    .then(function (result) {
+      t.same(result, response.payload)
+      sinon.assert.calledOnce(global.fetch)
+      sinon.assert.calledOnce(res.text)
+      sinon.assert.calledWith(global.fetch, request.url, sinon.match(function (opts) {
+        t.equal(opts.body, encrypt({
+          payload: {
+            query: request.query,
+            variables: request.variables || {}
+          }
+        }))
+        t.equal(opts.method, 'POST')
+        t.type(opts.headers, Headers)
+        t.equal(opts.headers.get('x-cipher'), request.cipherAlgorithm || 'aes256')
+        t.equal(opts.headers.get('x-key-id'), request.keyID)
+        t.equal(opts.headers.get('content-transfer-encoding'), 'base64')
+        t.equal(opts.headers.get('content-type'), opts.headers && opts.headers.get('content-type') || 'application/json')
+        if (request.checkOpts) {
+          return request.checkOpts(opts)
+        }
+        return true
+      }))
+      return result
+    })
+    .then(function (result) {
+      return {
+        result: result,
+        encrypt: encrypt
       }
     })
-  })
+}
 
-  it('should make a graphql request w/ vars and fetch options', function () {
-    var headers = new Headers()
-    headers.append('authorization', 'abcd')
-    headers.append('moreData', 'fancy')
-    headers.append('content-type', 'text-html')
-    return testRequest({
-      url: graphqlUrl,
-      keyID: 'user',
-      privateKey: 'fancy',
-      cipherAlgorithm: 'des',
-      cipherPad: 512,
-      query: 'query { user { password } }',
-      variables: { foo: 'bar' },
-      opts: {
-        headers: headers
-      },
-      checkOpts: function (opts) {
-        expect(opts.headers.get('authorization')).to.equal('abcd')
-        expect(opts.headers.get('moreData')).to.equal('fancy')
-        return true
-      }
-    }, {
-      payload: {
-        other: 'fancystuff'
-      }
-    })
-  })
-
-  it('should be rejected without query', function () {
-    return testRequest({ url: graphqlUrl, privateKey: 'foo' }, {})
-      .then(function () {
-        return Promise.reject(new Error('unexpected success'))
-      })
-      .catch(function (error) {
-        expect(error.code).to.equal('EQUERYMISSING')
-      })
-  })
-
-  it('should thrown an error if the graphqlUrl isnt given', function () {
-    try {
-      testRequest({ url: null, privateKey: 'foo' }, {})
-    } catch (e) {
-      if (e.code === 'EURLMISSING') {
-        return true
-      }
-      throw e
+test('make a graphql request', function (t) {
+  return testRequest(t, {
+    url: graphqlUrl,
+    keyID: 'admin',
+    privateKey: 'password',
+    query: 'query { user { username } }'
+  }, {
+    payload: {
+      data: 'something'
     }
-    return Promise.reject(new Error('unexpected success'))
   })
+})
 
-  afterEach(function () {
-    global.fetch.restore && global.fetch.restore()
+test('make a graphql request w/ vars and fetch options', function (t) {
+  var headers = new Headers()
+  headers.append('authorization', 'abcd')
+  headers.append('moreData', 'fancy')
+  headers.append('content-type', 'text-html')
+  return testRequest(t, {
+    url: graphqlUrl,
+    keyID: 'user',
+    privateKey: 'fancy',
+    cipherAlgorithm: 'des',
+    cipherPad: 512,
+    query: 'query { user { password } }',
+    variables: { foo: 'bar' },
+    opts: {
+      headers: headers
+    },
+    checkOpts: function (opts) {
+      t.equal(opts.headers.get('authorization'), 'abcd')
+      t.equal(opts.headers.get('moreData'), 'fancy')
+      return true
+    }
+  }, {
+    payload: {
+      other: 'fancystuff'
+    }
   })
+})
+
+test('rejected without query', function (t) {
+  return testRequest(t, { url: graphqlUrl, privateKey: 'foo' }, {})
+    .then(function () {
+      return Promise.reject(new Error('unt.equaled success'))
+    })
+    .catch(function (error) {
+      t.equal(error.code, 'EQUERYMISSING')
+    })
+})
+
+test('thrown an error if the graphqlUrl isnt given', function (t) {
+  return testRequest(t, {
+    url: null,
+    privateKey: 'foo'
+  }, {})
+    .then(function () {
+      throw new Error('unexpected success')
+    })
+    .catch(function (e) {
+      if (e.code !== 'EURLMISSING') {
+        throw new Error('unexpected error ' + e)
+      }
+    })
 })

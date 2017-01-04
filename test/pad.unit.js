@@ -1,21 +1,14 @@
 'use strict'
 
-var describe = global.describe
-var it = global.it
-var expect = require('code').expect
+var test = require('tap').test
 var createPad = require('../lib/pad.js')
 
-function createTest (str, padAmount, pad) {
-  var expected = str.length + (padAmount - str.length % padAmount)
-  it('string with length ' + str.length + ' should be padded to ' + expected, function () {
-    expect(pad(str).length).to.equal(expected)
-  })
-}
-
-describe('pad all lengths of strings', function () {
+test('padding', function (t) {
   var padAmount = 5
   var pad = createPad(padAmount)
   for (var str = ''; str.length <= 15; str += ' ') {
-    createTest(str, padAmount, pad)
+    var expected = str.length + (padAmount - str.length % padAmount)
+    t.equal(pad(str).length, expected, 'pad string with length ' + str.length + ' should be padded to ' + expected)
   }
+  t.end()
 })
