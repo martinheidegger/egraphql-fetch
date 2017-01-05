@@ -7,7 +7,7 @@ node_js:
 - '6'
 - '7'
 matrix:
-  include
+  include:
   - node_js: 7
     env: ZUUL_ENABLED=true
 sudo: false
