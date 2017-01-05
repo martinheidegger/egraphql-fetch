@@ -8,10 +8,12 @@
     "isomorphic-fetch": "^2.2.1"
   },
   "devDependencies": {
+    "browserify": "^13.3.0",
     "sinon": "^1.17.4",
     "sinon-as-promised": "^4.0.0",
     "standard": "^8.6.0",
-    "tap": "^8.0.1"
+    "tap": "^8.0.1",
+    "uglifyify": "^3.0.4"
   },
   "testling": {
     "files": "test/*.js",
@@ -28,7 +30,9 @@
   "scripts": {
     "test": "npm run lint && npm run unit",
     "unit": "tap --coverage test/*.js",
-    "lint": "standard"
+    "lint": "standard",
+    "preversion": "npm run browser",
+    "browser": "browserify -g uglifyify index.js > index.min.js"
   },
   "repository": {
     "type": "git",
