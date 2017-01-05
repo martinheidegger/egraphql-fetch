@@ -13,6 +13,18 @@
     "standard": "^8.6.0",
     "tap": "^8.0.1"
   },
+  "testling": {
+    "files": "test/*.js",
+    "browsers": [
+      "ie/8..latest",
+      "chrome/38..latest",
+      "firefox/30..latest",
+      "safari/latest",
+      "opera/11.0..latest",
+      "iphone/7",
+      "android-browser/latest"
+    ]
+  },
   "scripts": {
     "test": "npm run lint && npm run unit",
     "unit": "tap --coverage test/*.js",

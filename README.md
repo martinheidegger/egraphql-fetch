@@ -1,5 +1,7 @@
-# graphql-fetch [![Build Status](https://travis-ci.org/tjmehta/graphql-fetch.svg?branch=master)](https://travis-ci.org/tjmehta/graphql-fetch) [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
-Thin encrypted - GraphQL client powered by fetch.
+# graphql-fetch [![Build Status](https://travis-ci.org/martinheidegger/egraphql-fetch.svg?branch=master)](https://travis-ci.org/martinheidegger/egraphql-fetch) [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
+Thin, **symmetrically encrypted**, GraphQL client powered by fetch.
+
+_(Based on and compatible with [graphql-fetch](https://github.com/tjmehta/graphql-fetch))_
 
 # Installation
 ```bash
@@ -8,7 +10,13 @@ npm i --save egraphql-fetch
 
 # Usage
 ```js
-var fetch = require('graphql-fetch')('http://domain.com/graphql', 'keyId','secretKey')
+var fetch = require('graphql-fetch')(
+  'http://domain.com/graphql',
+  'keyId', //         ... ID for the key (could be user-name)
+  'secretKey', //     ... Secret Key to encrypt the data (could be password)
+  // cipherAlgorithm, ... Cipher algorithm used to encrypt the request (default: aes256)
+  // cipherPad        ... Padding to make traffic guessing harder (defaults: 1024)
+)
 
 var query = `
   query q (id: String!) {
