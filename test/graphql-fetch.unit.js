@@ -3,9 +3,7 @@
 /* global Headers */
 require('isomorphic-fetch')
 
-var tap = require('tap')
-var test = tap.test
-var afterEach = tap.afterEach
+var test = require('blue-tape').test
 
 var sinon = require('sinon')
 var crypto = require('crypto')
@@ -26,11 +24,6 @@ function _encrypt (cipher, key, pad, data) {
     c.final()
   ]).toString('base64')
 }
-
-afterEach(function (done) {
-  global.fetch.restore && global.fetch.restore()
-  done()
-})
 
 function testRequest (t, request, response) {
   var encrypt = _encrypt.bind(null, request.cipherAlgorithm || 'aes256', request.privateKey, request.cipherPad || 1024)
@@ -58,7 +51,7 @@ function testRequest (t, request, response) {
           }
         }))
         t.equal(opts.method, 'POST')
-        t.type(opts.headers, Headers)
+        t.ok(opts.headers instanceof Headers)
         t.equal(opts.headers.get('x-cipher'), request.cipherAlgorithm || 'aes256')
         t.equal(opts.headers.get('x-key-id'), request.keyID)
         t.equal(opts.headers.get('content-transfer-encoding'), 'base64')
@@ -75,6 +68,13 @@ function testRequest (t, request, response) {
         result: result,
         encrypt: encrypt
       }
+    })
+    .catch(function (e) {
+      global.fetch.restore()
+      return Promise.reject(e)
+    })
+    .then(function () {
+      global.fetch.restore()
     })
 }
 

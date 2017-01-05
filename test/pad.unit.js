@@ -1,6 +1,6 @@
 'use strict'
 
-var test = require('tap').test
+var test = require('tape').test
 var createPad = require('../lib/pad.js')
 
 test('padding', function (t) {

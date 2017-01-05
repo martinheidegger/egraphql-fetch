@@ -8,12 +8,14 @@
     "isomorphic-fetch": "^2.2.1"
   },
   "devDependencies": {
+    "blue-tape": "^1.0.0",
     "browserify": "^13.3.0",
     "sinon": "^1.17.4",
     "sinon-as-promised": "^4.0.0",
     "standard": "^8.6.0",
-    "tap": "^8.0.1",
-    "uglifyify": "^3.0.4"
+    "tape": "^4.6.3",
+    "uglifyify": "^3.0.4",
+    "zuul": "^3.11.1"
   },
   "testling": {
     "files": "test/*.js",
@@ -32,7 +34,8 @@
     "unit": "tap --coverage test/*.js",
     "lint": "standard",
     "preversion": "npm run browser",
-    "browser": "browserify -g uglifyify index.js > index.min.js"
+    "browser": "browserify -g uglifyify index.js > index.min.js",
+    "zuul": "zuul --local 8080 -- test/pad.unit.js test/graphql-fetch.unit.js"
   },
   "repository": {
     "type": "git",
