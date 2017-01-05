@@ -13,6 +13,7 @@
     "sinon": "^1.17.4",
     "sinon-as-promised": "^4.0.0",
     "standard": "^8.6.0",
+    "tap": "^8.0.1",
     "tape": "^4.6.3",
     "uglifyify": "^3.0.4",
     "zuul": "^3.11.1"
@@ -31,7 +32,7 @@
   },
   "scripts": {
     "test": "npm run lint && npm run unit",
-    "unit": "tape --coverage test/*.js",
+    "unit": "tap --coverage test/*.js",
     "lint": "standard",
     "preversion": "npm run browser",
     "browser": "browserify -g uglifyify index.js > index.min.js",
