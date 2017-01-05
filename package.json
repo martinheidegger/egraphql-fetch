@@ -10,6 +10,7 @@
   "devDependencies": {
     "blue-tape": "^1.0.0",
     "browserify": "^13.3.0",
+    "envif": "^1.0.0",
     "sinon": "^1.17.4",
     "sinon-as-promised": "^4.0.0",
     "standard": "^8.6.0",
@@ -31,7 +32,7 @@
     ]
   },
   "scripts": {
-    "test": "npm run lint && npm run unit && npm run zuul",
+    "test": "npm run lint && npm run unit && envif ZUUL_ENABLED \"npm run zuul\"",
     "unit": "tap --coverage test/*.js",
     "lint": "standard",
     "preversion": "npm run browser",

@@ -6,6 +6,10 @@ node_js:
 - '5'
 - '6'
 - '7'
+matrix:
+  include
+  - node_js: 7
+    env: ZUUL_ENABLED=true
 sudo: false
 env:
   global:
