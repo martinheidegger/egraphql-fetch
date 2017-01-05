@@ -1,7 +1,7 @@
 # graphql-fetch [![Build Status](https://travis-ci.org/martinheidegger/egraphql-fetch.svg?branch=master)](https://travis-ci.org/martinheidegger/egraphql-fetch) [![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg?style=flat)](http://standardjs.com/)
 Thin, **symmetrically encrypted**, GraphQL client powered by fetch.
 
-_(Based on and compatible with [graphql-fetch](https://github.com/tjmehta/graphql-fetch))_
+_(Based on the great work of [tjmehta](https://github.com/tjmehta) and compatible with [graphql-fetch](https://github.com/tjmehta/graphql-fetch))_
 
 # Installation
 ```bash

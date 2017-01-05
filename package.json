@@ -1,7 +1,7 @@
 {
-  "name": "graphql-fetch",
+  "name": "egraphql-fetch",
   "version": "0.0.1",
-  "description": "Thin GraphQL client powered by fetch",
+  "description": "Thin symmetrically encrypted GraphQL client powered by fetch",
   "main": "index.js",
   "dependencies": {
     "101": "^1.5.0",
@@ -32,7 +32,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/tjmehta/graphql-fetch.git"
+    "url": "https://github.com/martinheidegger/egraphql-fetch.git"
   },
   "keywords": [
     "graphql",
@@ -42,10 +42,10 @@
     "query",
     "mutation"
   ],
-  "author": "Tejesh Mehta",
+  "author": "Martin Heidegger",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/tjmehta/graphql-fetch/issues"
+    "url": "https://github.com/martinheidegger/egraphql-fetch/issues"
   },
-  "homepage": "https://github.com/tjmehta/graphql-fetch"
+  "homepage": "https://github.com/martinheidegger/egraphql-fetch"
 }
