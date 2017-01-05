@@ -31,12 +31,12 @@
     ]
   },
   "scripts": {
-    "test": "npm run lint && npm run unit",
+    "test": "npm run lint && npm run unit && npm run zuul",
     "unit": "tap --coverage test/*.js",
     "lint": "standard",
     "preversion": "npm run browser",
     "browser": "browserify -g uglifyify index.js > index.min.js",
-    "zuul": "zuul --local 8080 -- test/pad.unit.js test/graphql-fetch.unit.js"
+    "zuul": "zuul -- test/*.js"
   },
   "repository": {
     "type": "git",
