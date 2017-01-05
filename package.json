@@ -32,7 +32,7 @@
     ]
   },
   "scripts": {
-    "test": "npm run lint && npm run unit && (if-env ZUUL_ENABLED=true && npm run zuul || echo 'no zuul')",
+    "test": "npm run lint && npm run unit && (if-env ZUUL_ENABLED=true && npm run zuul || (if-env ZUUL_ENABLED=true && exit 1 || echo 'no zuul'))",
     "unit": "tap --coverage test/*.js",
     "lint": "standard",
     "preversion": "npm run browser",
