@@ -36,7 +36,7 @@
     "unit": "tap --coverage test/*.js",
     "lint": "standard",
     "preversion": "npm run browser",
-    "browser": "browserify -g uglifyify index.js > index.min.js",
+    "browser": "browserify -g uglifyify index.js --standalone egraphqlFetch > index.min.js",
     "zuul": "zuul -- test/*.js"
   },
   "repository": {
