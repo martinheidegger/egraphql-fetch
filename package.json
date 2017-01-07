@@ -35,7 +35,7 @@
     "test": "npm run lint && npm run unit && (if-env ZUUL_ENABLED=true && npm run zuul || (if-env ZUUL_ENABLED=true && exit 1 || echo 'no zuul'))",
     "unit": "tap --coverage test/*.js",
     "lint": "standard",
-    "preversion": "npm run browser",
+    "preversion": "npm run browser && git add index.min.js && git commit -m \"updated min.js\" || echo ''",
     "browser": "browserify -g uglifyify index.js --standalone egraphqlFetch > index.min.js",
     "zuul": "zuul -- test/*.js"
   },
