@@ -1,6 +1,6 @@
 {
   "name": "egraphql-fetch",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Thin symmetrically encrypted GraphQL client powered by fetch",
   "main": "index.js",
   "dependencies": {
