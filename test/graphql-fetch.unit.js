@@ -25,8 +25,17 @@ function _encrypt (cipher, key, pad, data) {
   ]).toString('base64')
 }
 
+function _decrypt (cipher, key, data) {
+  var d = crypto.createDecipher(cipher, key)
+  return Buffer.concat([
+    d.update(data, 'base64'),
+    d.final()
+  ]).toString()
+}
+
 function testRequest (t, request, response) {
   var encrypt = _encrypt.bind(null, request.cipherAlgorithm || 'aes256', request.privateKey, request.cipherPad || 1024)
+  var decrypt = _decrypt.bind(null, request.cipherAlgorithm || 'aes256', request.privateKey)
   var res = {
     text: sinon.stub().returns(encrypt({
       payload: response.payload
@@ -44,12 +53,13 @@ function testRequest (t, request, response) {
       sinon.assert.calledOnce(global.fetch)
       sinon.assert.calledOnce(res.text)
       sinon.assert.calledWith(global.fetch, request.url, sinon.match(function (opts) {
-        t.equal(opts.body, encrypt({
-          payload: {
-            query: request.query,
-            variables: request.variables || {}
-          }
-        }))
+        var json = JSON.parse(decrypt(opts.body))
+        t.deepEqual(Object.keys(json), ['t', 'payload'])
+        t.equal(typeof json.t, 'number')
+        t.deepEqual(json.payload, {
+          query: request.query,
+          variables: request.variables || {}
+        })
         t.equal(opts.method, 'POST')
         t.ok(opts.headers instanceof Headers)
         t.equal(opts.headers.get('x-cipher'), request.cipherAlgorithm || 'aes256')

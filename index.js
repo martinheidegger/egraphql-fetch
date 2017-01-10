@@ -82,6 +82,7 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
     }
 
     opts.body = cipher(JSON.stringify({
+      t: Date.now(),
       payload: {
         query: query,
         variables: variables || {}
