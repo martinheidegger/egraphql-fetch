@@ -36,7 +36,9 @@
     "unit": "tap --coverage test/*.js",
     "lint": "standard",
     "preversion": "npm run browser && git add index.min.js && git commit -m \"updated min.js\" || echo ''",
-    "browser": "browserify -g uglifyify index.js --standalone egraphqlFetch > index.min.js",
+    "browser": "npm run browser-min && npm run browser-pack",
+    "browser-min": "browserify -g uglifyify index.js --standalone egraphqlFetch > index.min.js",
+    "browser-pack": "browserify --debug index.js --standalone egraphqlFetch > index.pack.js",
     "zuul": "zuul -- test/*.js"
   },
   "repository": {
