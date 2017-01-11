@@ -41,10 +41,10 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
     ]).toString('base64')
   }
   var decipher = function (data) {
-    var c = crypto.createDecipher(cipherAlgorithm, privateKey)
+    var d = crypto.createDecipher(cipherAlgorithm, privateKey)
     return Buffer.concat([
-      c.update(data, 'base64'),
-      c.final()
+      d.update(data, 'base64'),
+      d.final()
     ]).toString('utf8')
   }
 
@@ -91,8 +91,9 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
 
     return fetch(graphqlUrl, opts)
       .then(function (res) {
-        return decipher(res.text())
+        return res.text()
       })
+      .then(decipher)
       .then(function (data) {
         return JSON.parse(data).payload
       })
