@@ -28,7 +28,7 @@ function _encrypt (cipher, key, pad, data) {
 function _decrypt (cipher, key, data) {
   var d = crypto.createDecipher(cipher, key)
   return Buffer.concat([
-    d.update(data, 'base64'),
+    d.update(Buffer.from(data, 'base64')),
     d.final()
   ]).toString()
 }
