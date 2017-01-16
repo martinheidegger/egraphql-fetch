@@ -19,7 +19,7 @@
     "sinon": "^1.17.4",
     "sinon-as-promised": "^4.0.0",
     "standard": "^8.6.0",
-    "tap": "^8.0.1",
+    "tap": "^9.0.3",
     "tape": "^4.6.3",
     "uglifyify": "^3.0.4",
     "zuul": "^3.11.1"
