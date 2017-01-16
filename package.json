@@ -42,8 +42,8 @@
     "lint": "standard",
     "preversion": "npm run browser && git add index.min.js && git commit -m \"updated min.js\" || echo ''",
     "browser": "npm run browser-min && npm run browser-pack",
-    "browser-min": "browserify -g uglifyify index.js --standalone egraphqlFetch > index.min.js",
-    "browser-pack": "browserify --debug index.js --standalone egraphqlFetch > index.pack.js",
+    "browser-min": "(echo '/*'; cat ./LICENSE; echo ' */') > index.min.js; browserify -g uglifyify index.js --standalone egraphqlFetch >> index.min.js",
+    "browser-pack": "(echo '/*'; cat ./LICENSE; echo ' */') > index.pack.js; browserify --debug index.js --standalone egraphqlFetch >> index.pack.js",
     "zuul": "zuul -- test/*.js"
   },
   "repository": {
