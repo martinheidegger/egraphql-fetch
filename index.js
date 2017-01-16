@@ -2,11 +2,11 @@
 
 /* global Headers, fetch */
 require('isomorphic-fetch')
-require('./lib/bufferFix.js')
 
 var defaults = require('101/defaults')
 var crypto = require('crypto')
 var createPad = require('./lib/pad')
+var toBuffer = require('./lib/toBuffer.js')
 
 /**
  * create a graphql-fetch bound to a specific graphql url
@@ -44,7 +44,7 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
   var decipher = function (data) {
     var d = crypto.createDecipher(cipherAlgorithm, privateKey)
     return Buffer.concat([
-      d.update(Buffer.from(data, 'base64')),
+      d.update(toBuffer(data, 'base64')),
       d.final()
     ]).toString('utf8')
   }

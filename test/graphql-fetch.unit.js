@@ -2,7 +2,6 @@
 
 /* global Headers */
 require('isomorphic-fetch')
-require('../lib/bufferFix.js')
 
 var test = require('blue-tape').test
 
@@ -12,6 +11,7 @@ require('sinon-as-promised')
 
 var graphqlUrl = 'http://host/graphql'
 var graphqlFactory = require('../index.js')
+var toBuffer = require('../lib/toBuffer.js')
 
 function _encrypt (cipher, key, pad, data) {
   var c = crypto.createCipher(cipher, key)
@@ -29,7 +29,7 @@ function _encrypt (cipher, key, pad, data) {
 function _decrypt (cipher, key, data) {
   var d = crypto.createDecipher(cipher, key)
   return Buffer.concat([
-    d.update(Buffer.from(data, 'base64')),
+    d.update(toBuffer(data, 'base64')),
     d.final()
   ]).toString()
 }
