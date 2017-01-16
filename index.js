@@ -2,6 +2,7 @@
 
 /* global Headers, fetch */
 require('isomorphic-fetch')
+require('./lib/bufferFix.js')
 
 var defaults = require('101/defaults')
 var crypto = require('crypto')

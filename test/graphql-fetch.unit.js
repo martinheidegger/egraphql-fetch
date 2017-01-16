@@ -2,6 +2,7 @@
 
 /* global Headers */
 require('isomorphic-fetch')
+require('../lib/bufferFix.js')
 
 var test = require('blue-tape').test
 
