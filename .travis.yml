@@ -11,6 +11,13 @@ matrix:
   - node_js: 7
     env: ZUUL_ENABLED=true
 sudo: false
+git:
+  depth: 5
+cache:
+  directories:
+    - ~/.npm
+before_install:
+  - npm config set spin false --global
 env:
   global:
   - secure: yu6JBuGpri4StxLK3wDn8HHQDOba4OdNqjdR8xO0ipilM/1G29kpb6jjGUYA4oNwnuPobO8Oj6R4GoZiRtcAORapEEe5ZREzv3uJScqlPdipg8SlPuiVZ9/Rs9tN+cPo8m1PtCi4gdz1w0d3AppvIUM5IgEu2+Q1iFYqnpJr9ZPu3ptXLNfpgC/oY0TuejAF0Rqmso91SlHn/nL4kXw1XQsGYAl6hLsaEdRp2WZP52eGxWNCY1gikrMjwRK10+cyesGiVDCXKRGgvViYNbM73pFcqFaKnJqXjKHV8gtlK677+GOHBrw/F44RdxU8sc7uwh786tUZhXBkUzvK6+zNsWO9zn+0/mhF5mRhiroYvhrcScprpHa5aig139U04xRtHjaagXfcMLUEpWkU9ge9OtyFmiic73WWqN3RcspSrOF4nQP8B4Ip/+8VkGijQN1mYwYlRD+89ScCmVeHnYW/BeTWE60aHWNpiO3bDjmEupBjliPGFpYlgHxKBzskU2NMpnkfdpEHODw7nsqo382CVQVipsY1x4uHi3mhu1L0X3o74FVMTh9WnDcq+boI68sZROawoLop3H2eG8lL/HkwOds9N4ZSnOLtKD7jBBiQGdqo7nMgqhAlrDGwdBmkgIuMBdAfIMpUr/VfVaFkYhJkGM0WXHzo2rAFVRMqBDPm7C8=
