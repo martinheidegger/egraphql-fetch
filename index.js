@@ -42,7 +42,6 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
     headers.set('content-type', 'application/egraphql')
   }
 
-
   /**
    * graphql fetch - fetch w/ smart defaults for graphql requests
    * @param  {Query} query graphql query
