@@ -5,7 +5,8 @@
   "main": "index.js",
   "dependencies": {
     "101": "^1.5.0",
-    "isomorphic-fetch": "^2.2.1"
+    "isomorphic-fetch": "^2.2.1",
+    "simple-random": "^1.0.3"
   },
   "standard": {
     "ignore": [

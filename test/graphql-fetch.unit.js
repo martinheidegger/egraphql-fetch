@@ -46,6 +46,7 @@ function testRequest (t, request, response) {
   try {
     var graphqlFetch = graphqlFactory(request.url, request.keyID, request.privateKey, request.cipherAlgorithm, request.cipherPad)
   } catch (e) {
+    global.fetch.restore()
     return Promise.reject(e)
   }
   return graphqlFetch(request.query, request.variables, request.opts)
@@ -55,8 +56,9 @@ function testRequest (t, request, response) {
       sinon.assert.calledOnce(res.text)
       sinon.assert.calledWith(global.fetch, request.url, sinon.match(function (opts) {
         var json = JSON.parse(decrypt(opts.body))
-        t.deepEqual(Object.keys(json), ['t', 'payload'])
-        t.equal(typeof json.t, 'number')
+        opts.json = json
+        t.deepEqual(Object.keys(json), ['id', 'payload'])
+        t.ok(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{1,3}Z_[A-Za-z0-9]{16}$/g.test(json.id))
         t.deepEqual(json.payload, {
           query: request.query,
           variables: request.variables || {}
@@ -153,4 +155,24 @@ test('thrown an error if the graphqlUrl isnt given', function (t) {
         throw new Error('unexpected error ' + e)
       }
     })
+})
+
+test('custom ids', function (t) {
+  const id = graphqlFactory.id()
+  return testRequest(t, {
+    url: graphqlUrl,
+    privateKey: 'foo',
+    opts: {
+      id: id
+    },
+    query: 'query { user { username } }',
+    checkOpts: function (opts) {
+      t.equal(opts.json.id, id)
+      return true
+    }
+  }, {
+    payload: {
+      data: 'true'
+    }
+  })
 })

@@ -5,8 +5,9 @@ require('isomorphic-fetch')
 
 var defaults = require('101/defaults')
 var crypto = require('crypto')
-var createPad = require('./lib/pad')
+var createPad = require('./lib/pad.js')
 var toBuffer = require('./lib/toBuffer.js')
+var rnd = require('./lib/rnd.js')
 
 /**
  * create a graphql-fetch bound to a specific graphql url
@@ -82,8 +83,16 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
       headers.append('content-type', 'application/json')
     }
 
+    let id
+    if (opts.id) {
+      id = opts.id
+      delete opts.id
+    } else {
+      id = factory.id()
+    }
+
     opts.body = cipher(JSON.stringify({
-      t: Date.now(),
+      id: id,
       payload: {
         query: query,
         variables: variables || {}
@@ -99,4 +108,8 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
         return JSON.parse(data).payload
       })
   }
+}
+
+module.exports.id = function () {
+  return (new Date().toISOString()) + '_' + rnd()
 }
