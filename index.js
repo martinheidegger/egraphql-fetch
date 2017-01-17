@@ -4,9 +4,7 @@
 require('isomorphic-fetch')
 
 var defaults = require('101/defaults')
-var crypto = require('crypto')
-var createPad = require('./lib/pad.js')
-var toBuffer = require('./lib/toBuffer.js')
+var createCrypto = require('./lib/createCrypto.js')
 var rnd = require('./lib/rnd.js')
 var isRedirect = require('./lib/isRedirect.js')
 
@@ -34,22 +32,7 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
   if (!cipherAlgorithm) {
     cipherAlgorithm = 'aes256'
   }
-  var pad = createPad(cipherPad || 1024)
-  var cipher = function (data) {
-    data = pad(data)
-    var c = crypto.createCipher(cipherAlgorithm, privateKey)
-    return Buffer.concat([
-      c.update(data),
-      c.final()
-    ]).toString('base64')
-  }
-  var decipher = function (data) {
-    var d = crypto.createDecipher(cipherAlgorithm, privateKey)
-    return Buffer.concat([
-      d.update(toBuffer(data, 'base64')),
-      d.final()
-    ]).toString('utf8')
-  }
+  var crypto = createCrypto(cipherAlgorithm, privateKey, cipherPad)
 
   /**
    * graphql fetch - fetch w/ smart defaults for graphql requests
@@ -92,7 +75,7 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
       id = factory.id()
     }
 
-    opts.body = cipher(JSON.stringify({
+    opts.body = crypto.cipher(JSON.stringify({
       id: id,
       payload: {
         query: query,
@@ -134,7 +117,7 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
               err.text = text
               return Promise.reject(err)
             }
-            return decipher(text)
+            return crypto.decipher(text)
           })
       })
       .then(function (data) {
