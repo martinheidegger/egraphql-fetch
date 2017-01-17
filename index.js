@@ -77,11 +77,7 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
     headers.set('x-cipher', cipherAlgorithm)
     headers.set('x-key-id', keyID)
     headers.set('content-transfer-encoding', 'base64')
-
-    // Do allow a different content-type
-    if (!headers.get('content-type')) {
-      headers.append('content-type', 'application/json')
-    }
+    headers.set('content-type', 'application/egraphql')
 
     var id
     if (opts.id) {
@@ -101,6 +97,16 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
 
     return fetch(graphqlUrl, opts)
       .then(function (res) {
+        var contentType = res.headers.get('content-type')
+        if (res.status === 200 && contentType !== 'application/egraphql') {
+          var err = new Error(
+            'Wrong response content-type: "' + contentType + '". ' +
+            'Is this an egraphql endpoint?'
+          )
+          err.code = 'EHTTPCONTENTTYPE'
+          err.contentType = contentType
+          return Promise.reject(err)
+        }
         return res.text()
           .then(function (text) {
             if (res.status !== 200) {

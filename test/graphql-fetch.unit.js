@@ -39,6 +39,9 @@ function testRequest (t, request, response) {
   var decrypt = _decrypt.bind(null, request.cipherAlgorithm || 'aes256', request.privateKey)
   var res = {
     status: 200,
+    headers: response.headers || new Headers({
+      'content-type': 'application/egraphql'
+    }),
     text: sinon.stub().returns(Promise.resolve(encrypt({
       payload: response.payload
     })))
@@ -69,7 +72,7 @@ function testRequest (t, request, response) {
         t.equal(opts.headers.get('x-cipher'), request.cipherAlgorithm || 'aes256')
         t.equal(opts.headers.get('x-key-id'), request.keyID)
         t.equal(opts.headers.get('content-transfer-encoding'), 'base64')
-        t.equal(opts.headers.get('content-type'), opts.headers && opts.headers.get('content-type') || 'application/json')
+        t.equal(opts.headers.get('content-type'), 'application/egraphql')
         if (request.checkOpts) {
           return request.checkOpts(opts)
         }
@@ -97,6 +100,7 @@ test('handle non-proper response code', function (t) {
   var errorText = 'some error'
   sinon.stub(global, 'fetch').resolves({
     status: 500,
+    headers: new Headers(),
     text: sinon.stub().returns(Promise.resolve(errorText))
   })
   return graphqlFetch('{}')
@@ -108,6 +112,26 @@ test('handle non-proper response code', function (t) {
       t.equal(e.status, 500)
       t.equal(e.text, errorText)
       t.equal(e.code, 'EHTTPSTATUS')
+      global.fetch.restore()
+    })
+})
+
+test('handle non-proper response content-type', function (t) {
+  var graphqlFetch = graphqlFactory(graphqlUrl, 'admin', 'password')
+  sinon.stub(global, 'fetch').resolves({
+    status: 200,
+    headers: new Headers({
+      'content-type': 'application/json'
+    })
+  })
+  return graphqlFetch('{}')
+    .then(function (data) {
+      t.fail(('Request unexpectedly successful'))
+      global.fetch.restore()
+    })
+    .catch(function (e) {
+      t.equal(e.code, 'EHTTPCONTENTTYPE')
+      t.equal(e.contentType, 'application/json')
       global.fetch.restore()
     })
 })
