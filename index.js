@@ -83,7 +83,7 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
       headers.append('content-type', 'application/json')
     }
 
-    let id
+    var id
     if (opts.id) {
       id = opts.id
       delete opts.id
