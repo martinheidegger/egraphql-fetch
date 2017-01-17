@@ -55,25 +55,25 @@ function testRequest (t, request, response) {
   }
   return graphqlFetch(request.query, request.variables, request.opts)
     .then(function (result) {
-      t.same(result, response.payload)
+      t.same(result, response.payload, 'result be response payload')
       sinon.assert.calledOnce(global.fetch)
       sinon.assert.calledOnce(res.text)
       sinon.assert.calledWith(global.fetch, request.url, sinon.match(function (opts) {
         var json = JSON.parse(decrypt(opts.body))
         opts.json = json
-        t.deepEqual(Object.keys(json), ['id', 'payload'])
-        t.ok(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{1,3}Z_[A-Za-z0-9]{16}$/g.test(json.id))
+        t.deepEqual(Object.keys(json), ['id', 'payload'], 'Object.keys(json)')
+        t.ok(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{1,3}Z_[A-Za-z0-9]{16}$/g.test(json.id), 'id pattern')
         t.deepEqual(json.payload, {
           query: request.query,
           variables: request.variables || {}
-        })
-        t.equal(opts.method, 'POST')
-        t.equal(opts.redirect, request.redirect || 'error')
-        t.ok(opts.headers instanceof Headers)
-        t.equal(opts.headers.get('x-cipher'), request.cipherAlgorithm || 'aes256')
-        t.equal(opts.headers.get('x-key-id'), request.keyID)
-        t.equal(opts.headers.get('content-transfer-encoding'), 'base64')
-        t.equal(opts.headers.get('content-type'), 'application/egraphql')
+        }, 'payload comparison')
+        t.equal(opts.method, 'POST', 'opts.method')
+        t.equal(opts.redirect, request.redirect || 'error', 'opts.redirect')
+        t.ok(opts.headers instanceof Headers, 'opts.headers instanceof Headers')
+        t.equal(opts.headers.get('x-cipher'), request.cipherAlgorithm || 'aes256', 'opts.headers.get("x-cipher")')
+        t.equal(opts.headers.get('x-key-id'), request.keyID, 'opts.headers.get("x-key-id")')
+        t.equal(opts.headers.get('content-transfer-encoding'), 'base64', 'opts.headers.get("content-transfer-encoding")')
+        t.equal(opts.headers.get('content-type'), 'application/egraphql', 'opts.headers.get("content-type")')
         if (request.checkOpts) {
           return request.checkOpts(opts)
         }
