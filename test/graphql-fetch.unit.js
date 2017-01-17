@@ -38,9 +38,10 @@ function testRequest (t, request, response) {
   var encrypt = _encrypt.bind(null, request.cipherAlgorithm || 'aes256', request.privateKey, request.cipherPad || 1024)
   var decrypt = _decrypt.bind(null, request.cipherAlgorithm || 'aes256', request.privateKey)
   var res = {
-    text: sinon.stub().returns(encrypt({
+    status: 200,
+    text: sinon.stub().returns(Promise.resolve(encrypt({
       payload: response.payload
-    }))
+    })))
   }
   sinon.stub(global, 'fetch').resolves(res)
   try {
@@ -90,6 +91,26 @@ function testRequest (t, request, response) {
       global.fetch.restore()
     })
 }
+
+test('handle non-proper response code', function (t) {
+  var graphqlFetch = graphqlFactory(graphqlUrl, 'admin', 'password')
+  var errorText = 'some error'
+  sinon.stub(global, 'fetch').resolves({
+    status: 500,
+    text: sinon.stub().returns(Promise.resolve(errorText))
+  })
+  return graphqlFetch('{}')
+    .then(function (data) {
+      t.fail(('Request unexpectedly successful'))
+      global.fetch.restore()
+    })
+    .catch(function (e) {
+      t.equal(e.status, 500)
+      t.equal(e.text, errorText)
+      t.equal(e.code, 'EHTTPSTATUS')
+      global.fetch.restore()
+    })
+})
 
 test('make a graphql request', function (t) {
   return testRequest(t, {

@@ -102,8 +102,17 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
     return fetch(graphqlUrl, opts)
       .then(function (res) {
         return res.text()
+          .then(function (text) {
+            if (res.status !== 200) {
+              var err = new Error('HTTP status: ' + res.status + '\n' + text)
+              err.code = 'EHTTPSTATUS'
+              err.status = res.status
+              err.text = text
+              return Promise.reject(err)
+            }
+            return decipher(text)
+          })
       })
-      .then(decipher)
       .then(function (data) {
         return JSON.parse(data).payload
       })
