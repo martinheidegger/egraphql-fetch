@@ -253,6 +253,7 @@ test('custom ids', function (t) {
   var id = graphqlFactory.id()
   return testRequest(t, {
     url: graphqlUrl,
+    keyID: 'admin',
     privateKey: 'foo',
     opts: {
       id: id
