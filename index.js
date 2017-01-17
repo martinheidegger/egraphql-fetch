@@ -33,6 +33,15 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
     cipherAlgorithm = 'aes256'
   }
   var crypto = createCrypto(cipherAlgorithm, privateKey, cipherPad)
+  var prepareHeaders = function (headers) {
+    // Override the cipher & keyID & content-transfer-encoding,
+    // to make sure that the correct cipher is set
+    headers.set('x-cipher', cipherAlgorithm)
+    headers.set('x-key-id', keyID)
+    headers.set('content-transfer-encoding', 'base64')
+    headers.set('content-type', 'application/egraphql')
+  }
+
 
   /**
    * graphql fetch - fetch w/ smart defaults for graphql requests
@@ -58,14 +67,7 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
       opts.redirect = 'error'
     }
 
-    var headers = opts.headers
-
-    // Override the cipher & keyID & content-transfer-encoding,
-    // to make sure that the correct cipher is set
-    headers.set('x-cipher', cipherAlgorithm)
-    headers.set('x-key-id', keyID)
-    headers.set('content-transfer-encoding', 'base64')
-    headers.set('content-type', 'application/egraphql')
+    prepareHeaders(opts.headers)
 
     var id
     if (opts.id) {
