@@ -68,6 +68,7 @@ function testRequest (t, request, response) {
           variables: request.variables || {}
         })
         t.equal(opts.method, 'POST')
+        t.equal(opts.redirect, request.redirect || 'error')
         t.ok(opts.headers instanceof Headers)
         t.equal(opts.headers.get('x-cipher'), request.cipherAlgorithm || 'aes256')
         t.equal(opts.headers.get('x-key-id'), request.keyID)
@@ -147,6 +148,52 @@ test('make a graphql request', function (t) {
       data: 'something'
     }
   })
+})
+
+test('pass through redirect options', function (t) {
+  return testRequest(t, {
+    url: graphqlUrl,
+    keyID: 'admin',
+    privateKey: 'password',
+    query: 'query { user { username } }',
+    redirect: 'follow',
+    opts: {
+      redirect: 'follow'
+    }
+  }, {
+    payload: {
+      data: 'something'
+    }
+  })
+})
+
+test('handle non-proper response code', function (t) {
+  var graphqlFetch = graphqlFactory(graphqlUrl, 'admin', 'password')
+  var errorText = 'some error'
+  var redirectLocation = 'abcd'
+  sinon.stub(global, 'fetch').resolves({
+    status: 301,
+    headers: new Headers({
+      location: redirectLocation
+    }),
+    text: function () {
+      return Promise.resolve(errorText)
+    }
+  })
+  return graphqlFetch('{}', {}, {
+    redirect: 'follow'
+  })
+    .then(function (data) {
+      t.fail(('Request unexpectedly successful'))
+      global.fetch.restore()
+    })
+    .catch(function (e) {
+      t.equal(e.status, 301)
+      t.equal(e.text, errorText)
+      t.equal(e.location, redirectLocation)
+      t.equal(e.code, 'EHTTPREDIRECT')
+      global.fetch.restore()
+    })
 })
 
 test('make a graphql request w/ vars and fetch options', function (t) {

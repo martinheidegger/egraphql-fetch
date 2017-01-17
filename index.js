@@ -8,6 +8,7 @@ var crypto = require('crypto')
 var createPad = require('./lib/pad.js')
 var toBuffer = require('./lib/toBuffer.js')
 var rnd = require('./lib/rnd.js')
+var isRedirect = require('./lib/isRedirect.js')
 
 /**
  * create a graphql-fetch bound to a specific graphql url
@@ -70,6 +71,10 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
       headers: new Headers()
     })
 
+    if (!opts.redirect) {
+      opts.redirect = 'error'
+    }
+
     var headers = opts.headers
 
     // Override the cipher & keyID & content-transfer-encoding,
@@ -109,6 +114,19 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
         }
         return res.text()
           .then(function (text) {
+            // fetch will resolve all redirect if the redirect option is not
+            // 'error'. If a redirect is still arriving then the redirect needs
+            // to be handled manually. We shouldn't just "resolve" it because
+            // mean we resolve with data. Thus sending a proper reject error
+            // is clearer
+            if (isRedirect(res.status)) {
+              var redirectErr = new Error('HTTP redirect: ' + res.status + '\n' + text)
+              redirectErr.code = 'EHTTPREDIRECT'
+              redirectErr.status = res.status
+              redirectErr.location = res.headers.get('location')
+              redirectErr.text = text
+              return Promise.reject(redirectErr)
+            }
             if (res.status !== 200) {
               var err = new Error('HTTP status: ' + res.status + '\n' + text)
               err.code = 'EHTTPSTATUS'
