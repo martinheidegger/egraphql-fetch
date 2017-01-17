@@ -250,7 +250,7 @@ test('thrown an error if the graphqlUrl isnt given', function (t) {
 })
 
 test('custom ids', function (t) {
-  const id = graphqlFactory.id()
+  var id = graphqlFactory.id()
   return testRequest(t, {
     url: graphqlUrl,
     privateKey: 'foo',
