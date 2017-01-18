@@ -38,8 +38,9 @@
     ]
   },
   "scripts": {
-    "test": "npm run lint && npm run unit && (if-env ZUUL_ENABLED=true && npm run zuul || (if-env ZUUL_ENABLED=true && exit 1 || echo 'no zuul'))",
-    "unit": "tap --coverage test/*.js",
+    "test": "npm run lint && npm run cov && (if-env ZUUL_ENABLED=true && npm run zuul || (if-env ZUUL_ENABLED=true && exit 1 || echo 'no zuul'))",
+    "unit": "tap test/*.js",
+    "cov": "tap --coverage --coverage-report=html test/*.js",
     "lint": "standard",
     "preversion": "npm run browser && git add index.min.js && git commit -m \"updated min.js\" || echo ''",
     "browser": "npm run browser-min && npm run browser-pack",
