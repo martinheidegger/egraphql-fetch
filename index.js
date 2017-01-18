@@ -8,6 +8,7 @@ var createCrypto = require('./lib/createCrypto.js')
 var rnd = require('./lib/rnd.js')
 var isRedirect = require('./lib/isRedirect.js')
 var pbkdf2Promise = require('./lib/pbkdf2Promise.js')
+var toBuffer = require('./lib/toBuffer.js')
 
 /**
  * create a graphql-fetch bound to a specific graphql url
@@ -51,7 +52,7 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
       body: crypto.cipher(JSON.stringify({
         id: factory.id() + '#session',
         payload: {
-          query: 'session { keyID, privateKey }'
+          query: 'mutation session { eGraphQLSession { keyID, secret } }'
         }
       }))
     }).then(function (res) {
@@ -59,15 +60,15 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
       if (res.status === 200 && contentType === 'application/egraphql') {
         return res.text()
           .then(function (text) {
-            return JSON.parse(crypto.decipher(text)).payload.session
+            return JSON.parse(crypto.decipher(text)).payload.data.eGraphQLSession
           })
           .then(function (session) {
             if (!session) {
               return null
             }
-            return pbkdf2Promise(privateKey, session.secret, 100000, 256, 'sha512')
-              .then(function (privateKey) {
-                session.privateKey = privateKey
+            return pbkdf2Promise(privateKey, toBuffer(session.secret), 100000, 256, 'sha512')
+              .then(function (sessionPrivateKey) {
+                session.privateKey = sessionPrivateKey
                 return session
               })
           })
@@ -83,7 +84,6 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
       }
       return session
     })
-
     getSession = function parallelRequestSession () {
       // Support parallel session requests
       return request

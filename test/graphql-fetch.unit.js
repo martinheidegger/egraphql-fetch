@@ -59,14 +59,16 @@ function testRequest (t, request, response, handleRequest) {
       global.fetch = fetchStub
       return request.handleSession(url, encrypt, decrypt)
     }
-    t.deepEqual(req.payload.query, 'session { keyID, privateKey }')
+    t.deepEqual(req.payload.query, 'mutation session { eGraphQLSession { keyID, secret } }')
     if (opts.headers) {
       t.equal(opts.headers.get('x-key-id'), request.keyID)
     }
     t.ok(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{1,3}Z_[A-Za-z0-9]{16}#session$/g.test(req.id))
     var res = new Response(encrypt({
       payload: {
-        session: request.session
+        data: {
+          eGraphQLSession: request.session
+        }
       }
     }))
     res.headers.set('content-type', 'application/egraphql')
