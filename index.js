@@ -46,6 +46,7 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
   var fetchSession = function fetchSession () {
     var request = fetch(graphqlUrl, {
       headers: prepareHeaders(new Headers()),
+      method: 'POST',
       body: crypto.cipher(JSON.stringify({
         id: factory.id() + '#session',
         payload: {

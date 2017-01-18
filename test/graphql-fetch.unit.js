@@ -49,6 +49,7 @@ function testRequest (t, request, response, handleRequest) {
   var fetchStub = sinon.stub(global, 'fetch').resolves(res)
   global.fetch = function (url, opts) {
     var req = decrypt(opts.body)
+    t.equal(opts.method, 'POST')
     t.notEqual(req, null, 'req != null')
     if (request.handleSession) {
       global.fetch = fetchStub
