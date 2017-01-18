@@ -41,6 +41,7 @@ module.exports = function factory (graphqlUrl, keyID, privateKey, cipherAlgorith
     headers.set('x-key-id', session ? session.keyID : keyID)
     headers.set('content-transfer-encoding', 'base64')
     headers.set('content-type', 'application/egraphql')
+    return headers
   }
 
   var fetchSession = function fetchSession () {

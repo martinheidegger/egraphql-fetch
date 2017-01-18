@@ -51,6 +51,10 @@ function testRequest (t, request, response, handleRequest) {
     var req = decrypt(opts.body)
     t.equal(opts.method, 'POST')
     t.notEqual(req, null, 'req != null')
+    t.equal(opts.headers.get('x-cipher'), request.cipherAlgorithm || 'aes256', 'opts.headers.get("x-cipher") for session')
+    t.equal(opts.headers.get('x-key-id'), request.keyID, 'opts.headers.get("x-key-id") for session')
+    t.equal(opts.headers.get('content-transfer-encoding'), 'base64', 'opts.headers.get("content-transfer-encoding") for session')
+    t.equal(opts.headers.get('content-type'), 'application/egraphql', 'opts.headers.get("content-type") for session')
     if (request.handleSession) {
       global.fetch = fetchStub
       return request.handleSession(url, encrypt, decrypt)
